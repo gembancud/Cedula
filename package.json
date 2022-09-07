@@ -1,15 +1,16 @@
 {
   "name": "cedula",
   "displayName": "Cedula",
-  "version": "0.0.0",
-  "description": "A basic Plasmo extension.",
-  "author": "gem",
+  "version": "0.0.1",
+  "description": "A Filipino community verification plugin for Facebook",
+  "author": "Gil Emmanuel Bancud",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build"
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "firebase": "^9.9.4",
     "plasmo": "0.53.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
@@ -24,8 +25,19 @@
     "typescript": "4.8.2"
   },
   "manifest": {
+    "key": "$CRX_PUBLIC_KEY",
+    "oauth2": {
+      "client_id": "$CEDULA_PUBLIC_FIREBASE_CLIENT_ID",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile"
+      ]
+    },
     "host_permissions": [
       "https://*/*"
+    ],
+    "permissions": [
+      "identity"
     ]
   }
 }

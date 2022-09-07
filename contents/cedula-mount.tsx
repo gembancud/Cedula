@@ -18,8 +18,9 @@ const ConstructImageElement = () => {
   para.style.float = "left"
   const img = document.createElement("img")
   img.src = iconImage
-  img.width = 16
-  img.height = 16
+  img.width = 14
+  img.height = 14
+  img.style.display = "inline-block"
   return para.appendChild(img)
 }
 
@@ -29,19 +30,22 @@ export const getMountPoint = async () => {
 }
 
 const AddCedulas = async () => {
+  // TODO ask cedulas
+  // const cedulas = await axios.get("http://localhost:3000/")
+  // console.log("cedulas", cedulas.data)
   const imageElement = ConstructImageElement()
   Object.values(all_tags.fb).forEach((tagList) => {
     // const elements = TraceElements(tagList)
     const elements = document.querySelectorAll(tagList.path[0])
 
     for (const mountPoint of elements) {
-      console.log("mount", mountPoint)
+      // console.log("mount", mountPoint)
       const link = findLink(mountPoint)
-      console.log(link)
+      // console.log(link)
 
       const toAppend = mountPoint.querySelector(":scope span")
       if (toAppend && toAppend.getElementsByTagName("img").length == 0) {
-        console.log(toAppend.innerHTML)
+        // console.log(toAppend.innerHTML)
         const name = toAppend.innerHTML
         toAppend.append(imageElement)
         // toAppend.appendChild(imageElement)
