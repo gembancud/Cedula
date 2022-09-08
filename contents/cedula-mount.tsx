@@ -28,7 +28,7 @@ const ConstructImageElement = () => {
 export const getMountPoint = async () => {
   if (!isMarked(document.head))
     window.addEventListener("click", async () => {
-      // AddCedulas()
+      AddCedulas()
     })
   AddCedulas()
   return document.querySelector("div")
@@ -36,25 +36,23 @@ export const getMountPoint = async () => {
 
 const AddCedulas = () => {
   mark(document.head)
-  console.log("Adding Cedulas")
   // TODO ask cedulas
   // const cedulas = await axios.get("http://localhost:3000/")
   // console.log("cedulas", cedulas.data)
-  const imageElement = ConstructImageElement()
   Object.values(all_tags.fb).forEach((tagList) => {
     // const elements = TraceElements(tagList)
-    const elements = document.querySelectorAll(tagList.path[0])
+    const elements = document.querySelectorAll(tagList)
     for (const mountPoint of elements) {
-      console.log("mount", mountPoint)
-      const link = findLink(mountPoint)
-      // console.log(link)
-
-      const toAppend = mountPoint.querySelector(":scope span")
+      const link = findLink(mountPoint.parentElement)
+      console.log(mountPoint.parentElement)
+      console.log(link)
+      let toAppend = mountPoint.parentElement
       if (toAppend && toAppend.getElementsByTagName("img").length == 0) {
         // console.log(toAppend.innerHTML)
         // const name = toAppend.innerHTML
+        const imageElement = ConstructImageElement()
         toAppend.append(imageElement)
-        console.log("stonks", mountPoint)
+        mark(mountPoint)
         // 1. Check the local storage/cache
         // 2. If not found, make a request to the server
         // 3. Store the response in the local storage/cache
@@ -76,9 +74,8 @@ const mark = (element) => {
 const isMarked = (element) => document.head.getAttribute("cedula_marked")
 
 const findLink = (element: Element): String => {
-  const firstChild = element.firstElementChild
-  if (firstChild) {
-    let link = firstChild.getAttribute("href")
+  if (element) {
+    let link = element.getAttribute("href")
     if (!link) return null
     link = link.substring(25, link.indexOf("?"))
     return link
