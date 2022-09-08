@@ -11,7 +11,8 @@ export const config: PlasmoContentScript = {
     "https://www.facebook.com/*"
     // "https://www.github.com/*",
     // "https://www.w3schools.com/*"
-  ]
+  ],
+  all_frames: true
 }
 const ConstructImageElement = () => {
   const para = document.createElement("div")
@@ -25,11 +26,17 @@ const ConstructImageElement = () => {
 }
 
 export const getMountPoint = async () => {
-  await AddCedulas()
-  return document.querySelector(all_tags.plasmo.feature_title)
+  if (!isMarked(document.head))
+    window.addEventListener("click", async () => {
+      // AddCedulas()
+    })
+  AddCedulas()
+  return document.querySelector("div")
 }
 
-const AddCedulas = async () => {
+const AddCedulas = () => {
+  mark(document.head)
+  console.log("Adding Cedulas")
   // TODO ask cedulas
   // const cedulas = await axios.get("http://localhost:3000/")
   // console.log("cedulas", cedulas.data)
@@ -37,26 +44,36 @@ const AddCedulas = async () => {
   Object.values(all_tags.fb).forEach((tagList) => {
     // const elements = TraceElements(tagList)
     const elements = document.querySelectorAll(tagList.path[0])
-
     for (const mountPoint of elements) {
-      // console.log("mount", mountPoint)
+      console.log("mount", mountPoint)
       const link = findLink(mountPoint)
       // console.log(link)
 
       const toAppend = mountPoint.querySelector(":scope span")
       if (toAppend && toAppend.getElementsByTagName("img").length == 0) {
         // console.log(toAppend.innerHTML)
-        const name = toAppend.innerHTML
+        // const name = toAppend.innerHTML
         toAppend.append(imageElement)
-        // toAppend.appendChild(imageElement)
+        console.log("stonks", mountPoint)
         // 1. Check the local storage/cache
         // 2. If not found, make a request to the server
         // 3. Store the response in the local storage/cache
       }
     }
   })
-  return
 }
+
+// Done only once per document.
+// Used to check if the document has been already processed atleast once
+// This filters so eventListeners are not added multiple times
+const mark = (element) => {
+  const marked = element.getAttribute("cedula_marked")
+  if (!marked) {
+    element.setAttribute("cedula_marked", "true")
+  }
+}
+
+const isMarked = (element) => document.head.getAttribute("cedula_marked")
 
 const findLink = (element: Element): String => {
   const firstChild = element.firstElementChild
