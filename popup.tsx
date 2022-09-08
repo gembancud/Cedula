@@ -5,7 +5,8 @@ import {
   browserLocalPersistence,
   onAuthStateChanged,
   setPersistence,
-  signInWithCredential
+  signInWithCredential,
+  signInWithPopup
 } from "firebase/auth"
 import { useEffect, useState } from "react"
 
@@ -20,6 +21,7 @@ setPersistence(auth, browserLocalPersistence)
 function IndexPopup() {
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState<User>(null)
+  const [lastLog, setLastLog] = useState("")
 
   // Whenever the user clicks logout, we need to
   // use the auth object we imported from our firebase.ts
@@ -35,6 +37,12 @@ function IndexPopup() {
   // send it to Firebase, and let Firebase do its magic
   // if everything worked, we'll get a user object from them
   const onLoginClicked = () => {
+    setLastLog("Clicked login")
+    signInWithGoogle()
+    // signInWithFacebook()
+  }
+
+  const signInWithGoogle = () => {
     chrome.identity.getAuthToken({ interactive: true }, async function (token) {
       if (chrome.runtime.lastError || !token) {
         console.error(chrome.runtime.lastError)
@@ -55,6 +63,32 @@ function IndexPopup() {
     })
   }
 
+  // Does not work because of manifestv3.
+  // Firebase Oauth needs to access to api.google.com and v3 Content-security-policy does not allow it.
+  // There are no workarounds for this.
+  // Possible reroute:
+  // 1. Link to open to another webapp.
+  // 2. Webapp handles Oauth Login and registers to backend
+  // 3. Backend setups confirmation process
+  // 4. Once confirmed, backend adds user to store
+  // 5.
+  //
+  // const signInWithFacebook = () => {
+  //   setLastLog("signInWithFacebook")
+  //
+  //   const fbProvider = new FacebookAuthProvider()
+  //   fbProvider.addScope("email")
+  // chrome.identity.launchWebAuthFlow(
+  //   { url: "<url-to-do-auth>", interactive: true },
+  //   (response) => {}
+  // )
+  // signInWithPopup(auth, fbProvider).then((result) => {
+  //   const user = result.user
+  //   setLastLog("sign in")
+  //   const credential = FacebookAuthProvider.credentialFromResult(result)
+  // })
+  // }
+
   // We register this listener once when this component starts
   useEffect(() => {
     // Whenever the auth changes, we make sure we're no longer loading
@@ -73,9 +107,7 @@ function IndexPopup() {
         flexDirection: "column",
         padding: 16
       }}>
-      <h1>
-        Welcome to your <a href="https://www.plasmo.com">Plasmo</a> Extension!
-      </h1>
+      <h1>Welcome to cedula</h1>
       {!user ? (
         <button
           onClick={() => {
