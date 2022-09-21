@@ -2,7 +2,7 @@ import axios from "axios"
 import type { PlasmoContentScript } from "plasmo"
 import React from "react"
 
-import { AddCedulas } from "../cedula"
+import { AddCedulas, storage } from "../cedula"
 import { isMarked } from "../utils"
 
 export const config: PlasmoContentScript = {
@@ -11,11 +11,13 @@ export const config: PlasmoContentScript = {
 }
 
 export const getMountPoint = async () => {
-  if (!isMarked(document.head))
+  if (!isMarked("cedula_marked", document.head))
     window.addEventListener("click", async () => {
-      AddCedulas()
+      // await strictSingleOp("semaphore", AddCedulas)
+      await AddCedulas()
     })
-  AddCedulas()
+  // await strictSingleOp("semaphore", AddCedulas)
+  await AddCedulas()
   return document.querySelector("div")
 }
 
@@ -30,6 +32,19 @@ const PlasmoPricingExtra = () => {
         blockSize: 0
       }}></span>
   )
+}
+
+const strictSingleOp = async (val, callback) => {
+  const semaphore = await storage.get(val)
+  if (!semaphore || semaphore === "false") {
+    await storage.set(val, "true")
+  } else if (semaphore === "true") {
+    console.log("Supposed to stop here")
+    return
+  }
+  console.log("triggering callback", await storage.get(val))
+  await callback()
+  await storage.set(val, "false")
 }
 
 export default PlasmoPricingExtra

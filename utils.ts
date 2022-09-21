@@ -3,14 +3,17 @@ import iconImage from "data-base64:~assets/ph.png"
 // Done only once per document.
 // Used to check if the document has been already processed atleast once
 // This filters so eventListeners are not added multiple times
-export const mark = (element) => {
-  const marked = element.getAttribute("cedula_marked")
+export const mark = (mark, element) => {
+  const marked = element.getAttribute(mark)
   if (!marked) {
-    element.setAttribute("cedula_marked", "true")
+    element.setAttribute(mark, "true")
   }
 }
 
-export const isMarked = (element) => element.getAttribute("cedula_marked")
+export const isMarked = (mark, element) => {
+  const marked = element.getAttribute(mark)
+  return marked && marked === "true"
+}
 
 export const constructImageElement = () => {
   const para = document.createElement("div")
