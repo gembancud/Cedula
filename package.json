@@ -9,9 +9,11 @@
     "build": "plasmo build"
   },
   "dependencies": {
+    "@plasmohq/storage": "^0.11.1",
     "axios": "^0.27.2",
     "firebase": "^9.9.4",
     "plasmo": "0.53.0",
+    "query-string": "^7.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
