@@ -10,7 +10,7 @@ export const storage = new Storage({ area: "local" })
 
 interface CedulaPoint {
   link: string // query string to include in request
-  toAppend: Element // element to append image to
+  appendPoint: Element // element to append image to
   markPoint: Element // element to mark arbitrarily eg cedula_marked
 }
 
@@ -19,23 +19,23 @@ interface ResLink {
   verified: boolean
 }
 
-interface AddCedulasOpts {
-  markAll?: boolean
-}
-export const AddCedulas = async (opts?: AddCedulasOpts) => {
+export const AddCedulas = async () => {
+  const markAll: boolean = await storage
+    .get("markAll")
+    .then((res) => res && res === "true")
+  const expiry = await storage.get("expiry").then((res) => parseInt(res))
   mark("cedula_marked", document.head)
   // Get all cedula points inside the page
   const cedulaPoints = getCedulaPoints(all_tags.fb)
   if (cedulaPoints.length === 0) return
 
-  if (opts && opts.markAll === true) {
+  if (markAll) {
     applyCedulaPoints(cedulaPoints)
     return
   }
 
-  // foreach cedulaPoint, if link is in localstorage, apply cedulaPoint
+  // foreach cedulaPoint, if link is in localstorage and not expired, apply cedulaPoint
   // else, add to list of cedulaPoints to ask in api
-  // TODO storage value should be expiration date
   const cedulasToRequest: CedulaPoint[] = []
   for (const cedulaPoint of cedulaPoints) {
     const { link } = cedulaPoint
@@ -44,22 +44,36 @@ export const AddCedulas = async (opts?: AddCedulasOpts) => {
 
     if (!linkres) {
       cedulasToRequest.push(cedulaPoint)
-    } else if (linkres === "true") {
-      applyCedulaPoint(cedulaPoint)
+    } else {
+      const { verified, expiryDate } = JSON.parse(linkres)
+      if (Date.parse(expiryDate) < Date.now()) {
+        // Handle expired action here
+        await storage.remove(link)
+        cedulasToRequest.push(cedulaPoint)
+      } else if (verified) {
+        // Handle verified action here
+        applyCedulaPoint(cedulaPoint)
+      } else {
+        // Handle actions where link is not verified here
+        // console.log(`Link ${link} is not verified`)
+      }
     }
   }
   if (cedulasToRequest.length === 0) {
     return
   }
 
+  // Get unique links to request
   const uniqLinks = getUniqueLinks(cedulasToRequest)
   const url = stringifyUrl({
     url: "http://localhost:4000/ask/",
     query: { links: uniqLinks }
   })
+  // Response is parsed and cached
   const cedulas = await axios.get(url)
   const { links } = cedulas.data
   const linkMap = getLinkMap(links)
+  await setCacheLinkMap(linkMap, expiry)
 
   for (const cedulaPoint of cedulasToRequest) {
     const { link } = cedulaPoint
@@ -67,7 +81,33 @@ export const AddCedulas = async (opts?: AddCedulasOpts) => {
     if (verified) {
       applyCedulaPoint(cedulaPoint)
     }
-    await storage.set(link, verified ? "true" : "false")
+  }
+}
+/**
+ * Using the linkMap, for each link cache verified status and expiry date
+ * @param linkMap Map of link to verified status
+ * @param expiry How long to before cache is invalidated, in seconds
+ **/
+const setCacheLinkMap = async (
+  linkMap: Map<string, boolean>,
+  expiry?: number
+) => {
+  for (const [link, verified] of linkMap) {
+    const expiryDate = new Date()
+
+    if (expiry) {
+      // For quick testing set to 5 seconds
+      expiryDate.setSeconds(expiryDate.getSeconds() + expiry)
+    } else {
+      expiryDate.setMinutes(expiryDate.getMinutes() + 15)
+    }
+
+    const cacheValue = JSON.stringify({
+      verified,
+      expiryDate
+    })
+
+    await storage.set(link, cacheValue)
   }
 }
 
@@ -77,15 +117,15 @@ const getCedulaPoints = (query: object) => {
     const elements = document.querySelectorAll(tagList)
     for (const markPoint of elements) {
       const link = findLink(markPoint.parentElement)
-      let toAppend = markPoint.parentElement
+      let appendPoint = markPoint.parentElement
       if (
         !isMarked("flagged_once", markPoint) &&
-        toAppend &&
-        toAppend.getElementsByTagName("img").length == 0
+        appendPoint &&
+        appendPoint.getElementsByTagName("img").length == 0
       ) {
         const tmpCedulaPoint: CedulaPoint = {
           link,
-          toAppend,
+          appendPoint,
           markPoint
         }
         mark("flagged_once", markPoint)
@@ -103,11 +143,11 @@ const applyCedulaPoints = (cedulaPoints: CedulaPoint[]) => {
 }
 
 const applyCedulaPoint = (cedulaPoint: CedulaPoint) => {
-  const { toAppend, markPoint } = cedulaPoint
-  if (toAppend.getElementsByTagName("img").length == 0) {
+  const { appendPoint, markPoint } = cedulaPoint
+  if (appendPoint.getElementsByTagName("img").length == 0) {
     const imageElement = constructImageElement()
     mark("cedula_marked", markPoint)
-    toAppend.append(imageElement)
+    appendPoint.append(imageElement)
   }
 }
 
