@@ -1,12 +1,10 @@
 import {
-  FacebookAuthProvider,
   GoogleAuthProvider,
   User,
   browserLocalPersistence,
   onAuthStateChanged,
   setPersistence,
-  signInWithCredential,
-  signInWithPopup
+  signInWithCredential
 } from "firebase/auth"
 import { useEffect, useState } from "react"
 

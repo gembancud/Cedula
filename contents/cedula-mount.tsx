@@ -17,7 +17,7 @@ export const getMountPoint = async () => {
       await AddCedulas()
     })
   // await strictSingleOp("semaphore", AddCedulas)
-  await AddCedulas()
+  await AddCedulas({ markAll: true })
   return document.querySelector("div")
 }
 

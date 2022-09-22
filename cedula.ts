@@ -9,20 +9,27 @@ import { constructImageElement, isMarked, mark } from "./utils"
 export const storage = new Storage({ area: "local" })
 
 interface CedulaPoint {
-  link: string
-  toAppend: Element
-  markPoint: Element
+  link: string // query string to include in request
+  toAppend: Element // element to append image to
+  markPoint: Element // element to mark arbitrarily eg cedula_marked
 }
 
 interface ResLink {
   link: string
   verified: boolean
 }
-export const AddCedulas = async () => {
+
+interface AddCedulasOpts {
+  markAll?: boolean
+}
+export const AddCedulas = async (opts?: AddCedulasOpts) => {
   mark("cedula_marked", document.head)
   // Get all cedula points inside the page
   const cedulaPoints = getCedulaPoints(all_tags.fb)
-  if (cedulaPoints.length === 0) {
+  if (cedulaPoints.length === 0) return
+
+  if (opts && opts.markAll === true) {
+    applyCedulaPoints(cedulaPoints)
     return
   }
 
@@ -37,7 +44,7 @@ export const AddCedulas = async () => {
 
     if (!linkres) {
       cedulasToRequest.push(cedulaPoint)
-    } else {
+    } else if (linkres === "true") {
       applyCedulaPoint(cedulaPoint)
     }
   }
