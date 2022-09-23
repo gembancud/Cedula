@@ -66,7 +66,7 @@ export const AddCedulas = async () => {
   // Get unique links to request
   const uniqLinks = getUniqueLinks(cedulasToRequest)
   const url = stringifyUrl({
-    url: "http://localhost:4000/ask/",
+    url: process.env.CEDULA_API_URL,
     query: { links: uniqLinks }
   })
   // Response is parsed and cached
