@@ -66,7 +66,7 @@ export const AddCedulas = async () => {
   // Get unique links to request
   const uniqLinks = getUniqueLinks(cedulasToRequest)
   const url = stringifyUrl({
-    url: process.env.CEDULA_API_URL,
+    url: `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/ask`,
     query: { links: uniqLinks }
   })
   // Response is parsed and cached

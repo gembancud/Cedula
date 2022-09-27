@@ -57,52 +57,6 @@ function IndexPopup() {
     console.log("cleared storage")
   }
 
-  // return (
-  //   <div
-  //     style={{
-  //       display: "flex",
-  //       flexDirection: "column",
-  //       padding: 30,
-  //       width: 300
-  //     }}>
-  //     <Switch
-  //       checked={markAllChecked === "true"}
-  //       onChange={(event) => {
-  //         setMarkAllChecked(event.currentTarget.checked ? "true" : "false")
-  //         chrome.tabs.query(
-  //           { active: true, currentWindow: true },
-  //           function (tabs) {
-  //             chrome.tabs.update(tabs[0].id, { url: tabs[0].url })
-  //           }
-  //         )
-  //       }}
-  //       color="teal"
-  //       size="xs"
-  //       label=" Preview badges on all people"
-  //       thumbIcon={
-  //         markAllChecked === "true" ? (
-  //           <IconCheck
-  //             size={12}
-  //             color={theme.colors.teal[theme.fn.primaryShade()]}
-  //             stroke={3}
-  //           />
-  //         ) : (
-  //           <IconX
-  //             size={12}
-  //             color={theme.colors.red[theme.fn.primaryShade()]}
-  //             stroke={3}
-  //           />
-  //         )
-  //       }
-  //     />
-  //
-  //     <button
-  //       onClick={() => {
-  //         clearStorage()
-  //       }}>
-  //       Clear storage
-  //     </button>
-  //   </div>
   return (
     <Stack
       sx={{
@@ -117,7 +71,7 @@ function IndexPopup() {
         size="xl"
         weight={700}
         style={{ fontFamily: "Greycliff CF, sans-serif" }}>
-        Cedula
+        Cedula 0.0.1
       </Text>
       <Switch
         checked={markAllChecked === "true"}
@@ -187,6 +141,7 @@ function IndexPopup() {
           alignSelf: "center"
         }}>
         <Button
+          onClick={() => clearStorage()}
           sx={{
             alignSelf: "center"
           }}>
