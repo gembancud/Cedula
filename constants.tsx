@@ -1,3 +1,5 @@
+// Deprecated, and should only be used for development testing
+// Production code should request tags from the server
 export const all_tags = {
   plasmo: {
     header_bar_actions: ".css-sk2d8b",

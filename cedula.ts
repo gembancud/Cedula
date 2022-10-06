@@ -25,8 +25,13 @@ export const AddCedulas = async () => {
     .then((res) => res && res === "true")
   const expiry = await storage.get("expiry").then((res) => parseInt(res))
   mark("cedula_marked", document.head)
+
+  // Get cedula tags, use all_tabs.fb to experiment with fixed tags
+  const cedulaTags = await getCedulaTags()
+  // const cedulaTags = all_tags.fb
+
   // Get all cedula points inside the page
-  const cedulaPoints = getCedulaPoints(all_tags.fb)
+  const cedulaPoints = getCedulaPoints(cedulaTags)
   if (cedulaPoints.length === 0) return
 
   if (markAll) {
@@ -109,6 +114,41 @@ const setCacheLinkMap = async (
 
     await storage.set(link, cacheValue)
   }
+}
+
+/**
+ * Cedula Tags are query strings used to detect cedula points
+ * If previously stored in localstorage and not expired, use that instead.
+ *
+ * @returns Object of cedula tags
+ * */
+const getCedulaTags = async () => {
+  let storedTags: object | null = await storage
+    .get("cedula_tags")
+    .then((res) => (res ? JSON.parse(res) : null))
+  let storedTagsExpiry: string | null = await storage
+    .get("cedula_tags_expiry")
+    .then((res) => (res ? JSON.parse(res).expiryDate : null))
+
+  if (storedTags === null || Date.parse(storedTagsExpiry) < Date.now()) {
+    // console.log("No stored tags or expired, using default")
+    storedTags = {}
+    const res = await axios.get(
+      `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/tag`
+    )
+    const { tags } = res.data
+    for (const tag of tags) {
+      storedTags[tag.label] = tag.tag
+    }
+    await storage.set("cedula_tags", JSON.stringify(storedTags))
+
+    const expiryDate = new Date()
+    expiryDate.setDate(expiryDate.getDate() + 1)
+    // For quick testing set to 5 seconds
+    // expiryDate.setSeconds(expiryDate.getSeconds() + 5)
+    await storage.set("cedula_tags_expiry", JSON.stringify({ expiryDate }))
+  }
+  return storedTags
 }
 
 const getCedulaPoints = (query: object) => {
