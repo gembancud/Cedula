@@ -16,10 +16,18 @@ interface CedulaPoint {
 
 interface ResLink {
   link: string
-  verified: boolean
+  orgs: string[]
 }
 
-export const AddCedulas = async () => {
+export const FaceBookAddCedulas = async () => {
+  AddCedulas("fb", ["Philippines"])
+}
+
+export const TwitterAddCedulas = async () => {
+  AddCedulas("twitter", ["Philippines"])
+}
+
+export const AddCedulas = async (site: string, orgs: string[]) => {
   const markAll: boolean = await storage
     .get("markAll")
     .then((res) => res && res === "true")
@@ -27,13 +35,15 @@ export const AddCedulas = async () => {
   mark("cedula_marked", document.head)
 
   // Get cedula tags, use all_tabs.fb to experiment with fixed tags
-  const cedulaTags = await getCedulaTags()
+  const cedulaTags = await getCedulaTags(site)
   // const cedulaTags = all_tags.fb
 
   // Get all cedula points inside the page
   const cedulaPoints = getCedulaPoints(cedulaTags)
+  // console.log("cedulaPoints", cedulaPoints)
   if (cedulaPoints.length === 0) return
 
+  // Override by adding to all cedulaPoints
   if (markAll) {
     applyCedulaPoints(cedulaPoints)
     return
@@ -50,13 +60,14 @@ export const AddCedulas = async () => {
     if (!linkres) {
       cedulasToRequest.push(cedulaPoint)
     } else {
-      const { verified, expiryDate } = JSON.parse(linkres)
+      const { orgs, expiryDate } = JSON.parse(linkres)
       if (Date.parse(expiryDate) < Date.now()) {
         // Handle expired action here
         await storage.remove(link)
         cedulasToRequest.push(cedulaPoint)
-      } else if (verified) {
+      } else if (orgs.length > 0) {
         // Handle verified action here
+        // TODO: applyCedulaPoint(org, cedulaPoint)
         applyCedulaPoint(cedulaPoint)
       } else {
         // Handle actions where link is not verified here
@@ -72,7 +83,11 @@ export const AddCedulas = async () => {
   const uniqLinks = getUniqueLinks(cedulasToRequest)
   const url = stringifyUrl({
     url: `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/ask`,
-    query: { links: uniqLinks }
+    query: {
+      site,
+      orgs,
+      links: uniqLinks
+    }
   })
   // Response is parsed and cached
   const cedulas = await axios.get(url)
@@ -82,8 +97,10 @@ export const AddCedulas = async () => {
 
   for (const cedulaPoint of cedulasToRequest) {
     const { link } = cedulaPoint
-    const verified = linkMap.get(link)
-    if (verified) {
+    const tmpOrgs = linkMap.get(link)
+    const orgsToMark = orgs.filter((org) => tmpOrgs.includes(org))
+    for (const org of orgsToMark) {
+      // TODO: replace with applyCedulaPoint(org, cedulaPoint)
       applyCedulaPoint(cedulaPoint)
     }
   }
@@ -94,10 +111,10 @@ export const AddCedulas = async () => {
  * @param expiry How long to before cache is invalidated, in seconds
  **/
 const setCacheLinkMap = async (
-  linkMap: Map<string, boolean>,
+  linkMap: Map<string, string[]>,
   expiry?: number
 ) => {
-  for (const [link, verified] of linkMap) {
+  for (const [link, orgs] of linkMap) {
     const expiryDate = new Date()
 
     if (expiry) {
@@ -108,7 +125,7 @@ const setCacheLinkMap = async (
     }
 
     const cacheValue = JSON.stringify({
-      verified,
+      orgs,
       expiryDate
     })
 
@@ -122,31 +139,34 @@ const setCacheLinkMap = async (
  *
  * @returns Object of cedula tags
  * */
-const getCedulaTags = async () => {
+const getCedulaTags = async (site: string) => {
   let storedTags: object | null = await storage
-    .get("cedula_tags")
+    .get(`${site}_cedula_tags`)
     .then((res) => (res ? JSON.parse(res) : null))
   let storedTagsExpiry: string | null = await storage
-    .get("cedula_tags_expiry")
+    .get(`${site}_cedula_tags_expiry`)
     .then((res) => (res ? JSON.parse(res).expiryDate : null))
 
   if (storedTags === null || Date.parse(storedTagsExpiry) < Date.now()) {
     // console.log("No stored tags or expired, using default")
     storedTags = {}
     const res = await axios.get(
-      `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/tag`
+      `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/tag/${site}`
     )
     const { tags } = res.data
     for (const tag of tags) {
       storedTags[tag.label] = tag.tag
     }
-    await storage.set("cedula_tags", JSON.stringify(storedTags))
+    await storage.set(`${site}_cedula_tags`, JSON.stringify(storedTags))
 
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + 1)
     // For quick testing set to 5 seconds
     // expiryDate.setSeconds(expiryDate.getSeconds() + 5)
-    await storage.set("cedula_tags_expiry", JSON.stringify({ expiryDate }))
+    await storage.set(
+      `${site}_cedula_tags_expiry`,
+      JSON.stringify({ expiryDate })
+    )
   }
   return storedTags
 }
@@ -207,10 +227,10 @@ const findLink = (element: Element): string => {
 }
 
 const getLinkMap = (links: ResLink[]) => {
-  const linkMap = new Map<string, boolean>()
+  const linkMap = new Map<string, string[]>()
   for (const tmpLink of links) {
-    const { link, verified } = tmpLink
-    linkMap.set(link, verified)
+    const { link, orgs } = tmpLink
+    linkMap.set(link, orgs)
   }
   return linkMap
 }
