@@ -5,7 +5,7 @@ import { FaceBookAddCedulas } from "../cedula"
 import { isMarked } from "../utils"
 
 export const config: PlasmoContentScript = {
-  matches: ["https://www.facebook.com/*"],
+  matches: ["https://www.facebook.com/*", "https://facebook.com/*"],
   all_frames: true
 }
 

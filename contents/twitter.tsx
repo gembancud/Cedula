@@ -5,8 +5,8 @@ import { TwitterAddCedulas } from "../cedula"
 import { isMarked } from "../utils"
 
 export const config: PlasmoContentScript = {
-  matches: ["https://www.twitter.com/*"],
-  all_frames: true
+  matches: ["https://www.twitter.com/*", "https://twitter.com/*"]
+  // all_frames: true
 }
 
 export const getMountPoint = async () => {

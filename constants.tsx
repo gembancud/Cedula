@@ -21,5 +21,9 @@ export const all_tags = {
     //   path: ["h1.jxuftiz4.jwegzro5.hl4rid49.icdlwmnq"],
     //   query: [1]
     // }
+  },
+  twitter: {
+    tweet:
+      "div.css-1dbjc4n > a.css-4rbku5 > div.css-1dbjc4n > div.r-1awozwy > span.css-16my406:not([cedula_marked]) > span.css-16my406:not([cedula_marked])"
   }
 }

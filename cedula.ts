@@ -37,9 +37,10 @@ export const AddCedulas = async (site: string, orgs: string[]) => {
   // Get cedula tags, use all_tabs.fb to experiment with fixed tags
   const cedulaTags = await getCedulaTags(site)
   // const cedulaTags = all_tags.fb
+  // const cedulaTags = all_tags.twitter
 
   // Get all cedula points inside the page
-  const cedulaPoints = getCedulaPoints(cedulaTags)
+  const cedulaPoints = getCedulaPoints(cedulaTags, site)
   // console.log("cedulaPoints", cedulaPoints)
   if (cedulaPoints.length === 0) return
 
@@ -171,12 +172,12 @@ const getCedulaTags = async (site: string) => {
   return storedTags
 }
 
-const getCedulaPoints = (query: object) => {
+const getCedulaPoints = (query: object, site: string) => {
   const cedulaPoints: CedulaPoint[] = []
   Object.values(query).forEach((tagList) => {
     const elements = document.querySelectorAll(tagList)
     for (const markPoint of elements) {
-      const link = findLink(markPoint.parentElement)
+      const link = findLink(markPoint.parentElement, site)
       let appendPoint = markPoint.parentElement
       if (
         !isMarked("flagged_once", markPoint) &&
@@ -211,7 +212,7 @@ const applyCedulaPoint = (cedulaPoint: CedulaPoint) => {
   }
 }
 
-const findLink = (element: Element): string => {
+const findLink = (element: Element, site: string): string => {
   if (element) {
     let link = null
     while (!link && element) {
@@ -220,7 +221,14 @@ const findLink = (element: Element): string => {
     }
     if (!link) return null
 
-    link = link.substring(25, link.indexOf("?"))
+    switch (site) {
+      case "fb":
+        link = link.substring(25, link.indexOf("?"))
+        break
+      case "twitter":
+        link = link.substring(1)
+        break
+    }
     return link
   }
   return null
