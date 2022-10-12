@@ -16,6 +16,8 @@ import { useState } from "react"
 
 import { useStorage } from "@plasmohq/storage"
 
+import { version } from "./package.json"
+
 const useStyles = createStyles((theme) => ({
   card: {
     height: 200,
@@ -71,7 +73,7 @@ function IndexPopup() {
         size="xl"
         weight={700}
         style={{ fontFamily: "Greycliff CF, sans-serif" }}>
-        Cedula 0.0.1
+        Cedula {version}
       </Text>
       <Switch
         checked={markAllChecked === "true"}
