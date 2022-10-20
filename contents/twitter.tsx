@@ -1,8 +1,8 @@
 import type { PlasmoContentScript } from "plasmo"
 import React from "react"
 
-import { TwitterAddCedulas } from "../cedula"
-import { isMarked } from "../utils"
+import { TwitterAddCedulas } from "./cedula"
+import { isMarked } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
   matches: ["https://www.twitter.com/*", "https://twitter.com/*"]

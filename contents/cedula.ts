@@ -3,8 +3,8 @@ import { stringifyUrl } from "query-string"
 
 import { Storage } from "@plasmohq/storage"
 
-import { all_tags } from "./constants"
-import { constructImageElement, isMarked, mark } from "./utils"
+import { all_tags } from "./misc/constants"
+import { constructImageElement, isMarked, mark } from "./misc/utils"
 
 export const storage = new Storage({ area: "local" })
 
@@ -19,7 +19,7 @@ interface ResLink {
   orgs: string[]
 }
 
-export const FaceBookAddCedulas = async () => {
+export const FacebookAddCedulas = async () => {
   AddCedulas("fb", ["Philippines"])
 }
 
@@ -178,7 +178,8 @@ const getCedulaPoints = (query: object, site: string) => {
     const elements = document.querySelectorAll(tagList)
     for (const markPoint of elements) {
       const link = findLink(markPoint.parentElement, site)
-      let appendPoint = markPoint.parentElement
+      // let appendPoint = markPoint.parentElement
+      let appendPoint = findLinkParent(markPoint)
       if (
         !isMarked("flagged_once", markPoint) &&
         appendPoint &&
@@ -206,10 +207,17 @@ const applyCedulaPoints = (cedulaPoints: CedulaPoint[]) => {
 const applyCedulaPoint = (cedulaPoint: CedulaPoint) => {
   const { appendPoint, markPoint } = cedulaPoint
   if (appendPoint.getElementsByTagName("img").length == 0) {
-    const imageElement = constructImageElement()
+    // const imageElement = constructImageElement()
+    const tmpElementToAppend = document.createElement("span")
+    tmpElementToAppend.setAttribute("data-link", cedulaPoint.link)
+    // appendPoint.append(tmpElementToAppend)
+    const appendPointFirsChild = appendPoint.firstChild
+    insertAfter(appendPointFirsChild, tmpElementToAppend)
     mark("cedula_marked", markPoint)
-    appendPoint.append(imageElement)
   }
+}
+function insertAfter(referenceNode, newNode) {
+  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling)
 }
 
 const findLink = (element: Element, site: string): string => {
@@ -232,6 +240,17 @@ const findLink = (element: Element, site: string): string => {
     return link
   }
   return null
+}
+
+const findLinkParent = (element: Element): Element => {
+  if (element) {
+    while (element) {
+      if (element.getAttribute("href")) {
+        return element.parentElement.parentElement
+      }
+      element = element.parentElement
+    }
+  }
 }
 
 const getLinkMap = (links: ResLink[]) => {

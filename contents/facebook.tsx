@@ -1,23 +1,30 @@
+import iconImage from "data-base64:~assets/ph.png"
 import type { PlasmoContentScript } from "plasmo"
-import React from "react"
+import type { PlasmoGetShadowHostId } from "plasmo"
+import type { PlasmoMountShadowHost } from "plasmo"
+import { useEffect, useState } from "react"
+import ReactTooltip, { Place } from "react-tooltip"
 
-import { FaceBookAddCedulas } from "../cedula"
-import { isMarked } from "../utils"
+// import Asd from "./asd"
+import { FacebookAddCedulas } from "./cedula"
+import { getRandomInt, isMarked } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
   matches: ["https://www.facebook.com/*", "https://facebook.com/*"],
   all_frames: true
 }
 
-export const getMountPoint = async () => {
+export const getInlineAnchorList = async () => {
   if (!isMarked("cedula_marked", document.head))
     window.addEventListener("click", async () => {
-      await FaceBookAddCedulas()
+      await FacebookAddCedulas()
     })
-  await strictSingleOp(FaceBookAddCedulas)
+  await strictSingleOp(FacebookAddCedulas)
   // await AddCedulas()
-  return document.querySelector("div")
+  return document.querySelectorAll("span[data-link]")
 }
+
+export const getShadowHostId: PlasmoGetShadowHostId = () => "custom-shadow-host"
 
 // This is prone to breaking.
 // Call using strictSingleOp(AddCedulas)
@@ -32,16 +39,63 @@ const strictSingleOp = async (callback) => {
   strictSingleOpSem = 0
 }
 
-// TODO: Switch to React Components when Issue #22 is resolved
-// REACT COMPONENT TO MOUNT
-const PlasmoPricingExtra = () => {
+const sayHello = () => {
+  console.log("Hello")
+}
+
+const ReactComp = ({ anchor }) => {
+  // const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
+  const [dynamicPlacement, setDynamicPlacement] = useState<Place>("top")
+  const appendId = getRandomInt(1000000)
+
+  const spanStyle = {
+    cursor: "pointer"
+  }
+
+  useEffect(() => {
+    // 👇️ get global mouse coordinates
+    const handleWindowMouseMove = (event) => {
+      const vh = document.documentElement.clientHeight
+
+      // setGlobalCoords({
+      //   x: event.clientX,
+      //   y: event.clientY / vh
+      // })
+
+      setDynamicPlacement(event.clientY / vh < 0.3 ? "top" : "bottom")
+    }
+    window.addEventListener("mousemove", handleWindowMouseMove)
+
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove)
+    }
+  }, [])
   return (
-    <span
-      style={{
-        background: "white",
-        padding: 0,
-        blockSize: 0
-      }}></span>
+    <>
+      <span
+        data-tip
+        data-for={`cedula-tooltip-${appendId}`}
+        data-event="click"
+        style={spanStyle}>
+        <img src={iconImage} width="14" height="14" />
+      </span>
+
+      <ReactTooltip
+        id={`cedula-tooltip-${appendId}`}
+        type="dark"
+        place={dynamicPlacement}
+        effect="solid"
+        clickable={true}
+        globalEventOff="click">
+        {/* <input type="text" placeholder="Type something..." /> */}
+        Hide for:
+        <div>
+          <button onClick={sayHello}>24 hours</button>
+          <button onClick={sayHello}>Forever</button>
+        </div>
+      </ReactTooltip>
+    </>
   )
 }
-export default PlasmoPricingExtra
+
+export default ReactComp

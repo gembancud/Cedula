@@ -17,10 +17,11 @@
     "@tabler/icons": "^1.97.0",
     "axios": "^0.27.2",
     "firebase": "^9.9.4",
-    "plasmo": "0.53.0",
+    "plasmo": "^0.57.2",
     "query-string": "^7.1.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-tooltip": "^4.4.0"
   },
   "devDependencies": {
     "@plasmohq/prettier-plugin-sort-imports": "1.2.0",

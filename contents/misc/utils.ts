@@ -25,3 +25,7 @@ export const constructImageElement = () => {
   img.style.display = "inline-block"
   return para.appendChild(img)
 }
+
+export const getRandomInt = (max) => {
+  return Math.floor(Math.random() * max)
+}
