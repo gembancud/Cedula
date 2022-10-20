@@ -4,7 +4,10 @@ import { stringifyUrl } from "query-string"
 import { Storage } from "@plasmohq/storage"
 
 import { all_tags } from "./misc/constants"
-import { constructImageElement, isMarked, mark } from "./misc/utils"
+import { getRandomInt, isMarked, mark } from "./misc/utils"
+import type { Place } from "react-tooltip"
+import { useEffect, useState } from "react"
+import ReactTooltip from "react-tooltip"
 
 export const storage = new Storage({ area: "local" })
 
@@ -208,15 +211,15 @@ const applyCedulaPoint = (cedulaPoint: CedulaPoint) => {
   const { appendPoint, markPoint } = cedulaPoint
   if (appendPoint.getElementsByTagName("img").length == 0) {
     // const imageElement = constructImageElement()
+    // appendPoint.append(tmpElementToAppend)
     const tmpElementToAppend = document.createElement("span")
     tmpElementToAppend.setAttribute("data-link", cedulaPoint.link)
-    // appendPoint.append(tmpElementToAppend)
     const appendPointFirsChild = appendPoint.firstChild
     insertAfter(appendPointFirsChild, tmpElementToAppend)
     mark("cedula_marked", markPoint)
   }
 }
-function insertAfter(referenceNode, newNode) {
+function insertAfter(referenceNode: Node, newNode: Node) {
   referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling)
 }
 
@@ -270,4 +273,29 @@ const getUniqueLinks = (cedulaPoints: CedulaPoint[]) => {
   }
   const setLink = new Set(links)
   return Array.from(setLink)
+}
+
+export const setStored = async (query: string, value: object, expire?: boolean) => {
+  await storage.set(query, JSON.stringify(value))
+
+  if (expire) {
+    const expiryDate = new Date()
+    expiryDate.setDate(expiryDate.getDate() + 1)
+    await storage.set(`${query}_expiry`, JSON.stringify({ expiryDate }))
+  }
+}
+
+export const getStored = async (query: string): Promise<object | null> => {
+  let storedObject: object | null = await storage
+    .get(query)
+    .then((res) => (res ? JSON.parse(res) : null))
+  let storedObjectExpiry: string | null = await storage
+    .get(`${query}_expiry`)
+    .then((res) => (res ? JSON.parse(res).expiryDate : null))
+
+  if (storedObject === null || (storedObjectExpiry && Date.parse(storedObjectExpiry) < Date.now())) {
+    // console.log("No stored tags or expired, using default")
+    return null
+  }
+  return storedObject
 }
