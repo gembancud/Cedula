@@ -1,14 +1,11 @@
-import iconImage from "data-base64:~assets/ph.png"
 import type { PlasmoContentScript } from "plasmo"
 import type { PlasmoGetShadowHostId } from "plasmo"
 import type { PlasmoMountShadowHost } from "plasmo"
-import { useEffect, useState } from "react"
-import ReactTooltip, { Place } from "react-tooltip"
 
 // import Asd from "./asd"
-import { FacebookAddCedulas, setStored } from "./cedula"
-import BadgeComp from "./components/badge"
-import { getRandomInt, isMarked } from "./misc/utils"
+import { FacebookAddCedulas } from "./cedula"
+import BadgeComp from "./components/badge-tooltipmenu"
+import { isMarked } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
   matches: ["https://www.facebook.com/*", "https://facebook.com/*"],

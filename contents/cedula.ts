@@ -1,13 +1,13 @@
 import axios from "axios"
 import { stringifyUrl } from "query-string"
+import { useEffect, useState } from "react"
+import type { Place } from "react-tooltip"
+import ReactTooltip from "react-tooltip"
 
 import { Storage } from "@plasmohq/storage"
 
 import { all_tags } from "./misc/constants"
 import { getRandomInt, isMarked, mark } from "./misc/utils"
-import type { Place } from "react-tooltip"
-import { useEffect, useState } from "react"
-import ReactTooltip from "react-tooltip"
 
 export const storage = new Storage({ area: "local" })
 
@@ -58,7 +58,8 @@ export const AddCedulas = async (site: string, orgs: string[]) => {
   const cedulasToRequest: CedulaPoint[] = []
   for (const cedulaPoint of cedulaPoints) {
     const { link } = cedulaPoint
-    if (!link) continue
+    const isHidden = await getStored(`${link}_hide`)
+    if (!link || isHidden) continue
     const linkres = await storage.get(link)
 
     if (!linkres) {
@@ -275,7 +276,11 @@ const getUniqueLinks = (cedulaPoints: CedulaPoint[]) => {
   return Array.from(setLink)
 }
 
-export const setStored = async (query: string, value: object, expire?: boolean) => {
+export const setStored = async (
+  query: string,
+  value: object,
+  expire?: boolean
+) => {
   await storage.set(query, JSON.stringify(value))
 
   if (expire) {
@@ -293,8 +298,12 @@ export const getStored = async (query: string): Promise<object | null> => {
     .get(`${query}_expiry`)
     .then((res) => (res ? JSON.parse(res).expiryDate : null))
 
-  if (storedObject === null || (storedObjectExpiry && Date.parse(storedObjectExpiry) < Date.now())) {
+  if (
+    storedObject === null ||
+    (storedObjectExpiry && Date.parse(storedObjectExpiry) < Date.now())
+  ) {
     // console.log("No stored tags or expired, using default")
+    console.log(`${query} not found in storage`)
     return null
   }
   return storedObject

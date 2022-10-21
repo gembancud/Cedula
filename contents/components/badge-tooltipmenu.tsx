@@ -1,21 +1,33 @@
 import iconImage from "data-base64:~assets/ph.png"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import reactDom from "react-dom"
 import ReactTooltip, { Place } from "react-tooltip"
 
 import { setStored } from "~contents/cedula"
 import { getRandomInt } from "~contents/misc/utils"
 
 const ReactComp = ({ anchor }) => {
+  const tooltipComponent = useRef()
+
+  const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
   const [dynamicPlacement, setDynamicPlacement] = useState<Place>("top")
   const appendId = getRandomInt(1000000)
 
   const spanStyle = {
     cursor: "pointer"
+    // position: "absolute",
+    // zIndex: 1000000
   }
 
   useEffect(() => {
     const handleWindowMouseMove = (event: any) => {
       const vh = document.documentElement.clientHeight
+
+      setGlobalCoords({
+        x: event.clientX,
+        y: event.clientY
+      })
+
       setDynamicPlacement(event.clientY / vh < 0.3 ? "top" : "bottom")
     }
     window.addEventListener("mousemove", handleWindowMouseMove)
@@ -40,7 +52,35 @@ const ReactComp = ({ anchor }) => {
         place={dynamicPlacement}
         effect="solid"
         clickable={true}
-        globalEventOff="click">
+        globalEventOff="click"
+        ref={tooltipComponent}
+        afterShow={() => {
+          var node = reactDom.findDOMNode(
+            tooltipComponent.current
+          ) as HTMLElement
+        }}
+        afterHide={() => {
+          var node = reactDom.findDOMNode(
+            tooltipComponent.current
+          ) as HTMLElement
+          node.style.left = null
+          node.style.top = null
+        }}
+        overridePosition={(
+          { left, top },
+          currentEvent,
+          currentTarget,
+          node
+        ) => {
+          const { x, y } = globalCoords
+          console.log("overridePosition", { x, y })
+          console.log("left top", { left, top })
+
+          return {
+            top,
+            left
+          }
+        }}>
         Hide for:
         <div>
           <button

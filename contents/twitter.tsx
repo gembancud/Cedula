@@ -1,7 +1,7 @@
 import type { PlasmoContentScript } from "plasmo"
-import React from "react"
 
 import { TwitterAddCedulas } from "./cedula"
+import BadgeComp from "./components/badge-inlinemenu"
 import { isMarked } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
@@ -9,14 +9,14 @@ export const config: PlasmoContentScript = {
   // all_frames: true
 }
 
-export const getMountPoint = async () => {
+export const getInlineAnchorList = async () => {
   if (!isMarked("cedula_marked", document.head))
     window.addEventListener("click", async () => {
       await TwitterAddCedulas()
     })
   await strictSingleOp(TwitterAddCedulas)
   // await AddCedulas()
-  return document.querySelector("div")
+  return document.querySelectorAll("span[data-link]")
 }
 
 // This is prone to breaking.
@@ -32,16 +32,4 @@ const strictSingleOp = async (callback) => {
   strictSingleOpSem = 0
 }
 
-// TODO: Switch to React Components when Issue #22 is resolved
-// REACT COMPONENT TO MOUNT
-const PlasmoPricingExtra = () => {
-  return (
-    <span
-      style={{
-        background: "white",
-        padding: 0,
-        blockSize: 0
-      }}></span>
-  )
-}
-export default PlasmoPricingExtra
+export default BadgeComp
