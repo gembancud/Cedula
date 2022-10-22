@@ -15,8 +15,6 @@ const ReactComp = ({ anchor }) => {
 
   const spanStyle = {
     cursor: "pointer"
-    // position: "absolute",
-    // zIndex: 1000000
   }
 
   useEffect(() => {
@@ -53,34 +51,7 @@ const ReactComp = ({ anchor }) => {
         effect="solid"
         clickable={true}
         globalEventOff="click"
-        ref={tooltipComponent}
-        afterShow={() => {
-          var node = reactDom.findDOMNode(
-            tooltipComponent.current
-          ) as HTMLElement
-        }}
-        afterHide={() => {
-          var node = reactDom.findDOMNode(
-            tooltipComponent.current
-          ) as HTMLElement
-          node.style.left = null
-          node.style.top = null
-        }}
-        overridePosition={(
-          { left, top },
-          currentEvent,
-          currentTarget,
-          node
-        ) => {
-          const { x, y } = globalCoords
-          console.log("overridePosition", { x, y })
-          console.log("left top", { left, top })
-
-          return {
-            top,
-            left
-          }
-        }}>
+        ref={tooltipComponent}>
         Hide for:
         <div>
           <button

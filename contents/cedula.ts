@@ -23,11 +23,11 @@ interface ResLink {
 }
 
 export const FacebookAddCedulas = async () => {
-  AddCedulas("fb", ["Philippines"])
+  await AddCedulas("fb", ["Philippines"])
 }
 
 export const TwitterAddCedulas = async () => {
-  AddCedulas("twitter", ["Philippines"])
+  await AddCedulas("twitter", ["Philippines"])
 }
 
 export const AddCedulas = async (site: string, orgs: string[]) => {
