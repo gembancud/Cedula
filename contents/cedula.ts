@@ -266,12 +266,11 @@ const findLink = (element: Element, site: string): string => {
         link = link.substring(1)
         break
       case "reddit":
-        link = link.substring(1)
+        link = link.substring(6).slice(0, -1)
         break
       default:
         break
     }
-    console.log("found link", link)
     return link
   }
   return null
