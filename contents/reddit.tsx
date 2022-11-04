@@ -2,22 +2,21 @@ import type { PlasmoContentScript } from "plasmo"
 import type { PlasmoGetShadowHostId } from "plasmo"
 import type { PlasmoMountShadowHost } from "plasmo"
 
-// import Asd from "./asd"
-import { FacebookAddCedulas } from "./cedula"
+import { RedditAddCedulas } from "./cedula"
 import ToolTipBadgeComp from "./components/badge-tooltipmenu"
 import { isMarked } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
-  matches: ["https://www.facebook.com/*", "https://facebook.com/*"],
+  matches: ["https://www.reddit.com/*", "https://reddit.com/*"],
   all_frames: true
 }
 
 export const getInlineAnchorList = async () => {
   if (!isMarked("cedula_marked", document.head))
     window.addEventListener("click", async () => {
-      await FacebookAddCedulas()
+      await RedditAddCedulas()
     })
-  await strictSingleOp(FacebookAddCedulas)
+  await strictSingleOp(RedditAddCedulas)
   // await AddCedulas()
   return document.querySelectorAll("span[data-link]")
 }

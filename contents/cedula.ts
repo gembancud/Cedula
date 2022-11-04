@@ -22,15 +22,29 @@ interface ResLink {
   orgs: string[]
 }
 
+interface AddCedulasProps {
+  site: string
+  orgs: string[]
+  appendOffset?: number // offset of append point. eg 1 for parent, 2 for grandparent
+}
+
 export const FacebookAddCedulas = async () => {
-  await AddCedulas("fb", ["Philippines"])
+  await AddCedulas({ site: "fb", orgs: ["Philippines"] })
 }
 
 export const TwitterAddCedulas = async () => {
-  await AddCedulas("twitter", ["Philippines"])
+  await AddCedulas({ site: "twitter", orgs: ["Philippines"] })
 }
 
-export const AddCedulas = async (site: string, orgs: string[]) => {
+export const RedditAddCedulas = async () => {
+  await AddCedulas({ site: "reddit", orgs: ["Philippines"], appendOffset: 1 })
+}
+
+export const AddCedulas = async ({
+  site,
+  orgs,
+  appendOffset
+}: AddCedulasProps) => {
   const markAll: boolean = await storage
     .get("markAll")
     .then((res) => res && res === "true")
@@ -41,9 +55,10 @@ export const AddCedulas = async (site: string, orgs: string[]) => {
   const cedulaTags = await getCedulaTags(site)
   // const cedulaTags = all_tags.fb
   // const cedulaTags = all_tags.twitter
+  // const cedulaTags = all_tags.reddit
 
   // Get all cedula points inside the page
-  const cedulaPoints = getCedulaPoints(cedulaTags, site)
+  const cedulaPoints = getCedulaPoints(cedulaTags, site, appendOffset)
   // console.log("cedulaPoints", cedulaPoints)
   if (cedulaPoints.length === 0) return
 
@@ -176,14 +191,24 @@ const getCedulaTags = async (site: string) => {
   return storedTags
 }
 
-const getCedulaPoints = (query: object, site: string) => {
+const getCedulaPoints = (
+  query: object,
+  site: string,
+  appendOffset?: number
+) => {
   const cedulaPoints: CedulaPoint[] = []
   Object.values(query).forEach((tagList) => {
     const elements = document.querySelectorAll(tagList)
     for (const markPoint of elements) {
-      const link = findLink(markPoint.parentElement, site)
+      const link = findLink(markPoint, site)
       // let appendPoint = markPoint.parentElement
       let appendPoint = findLinkParent(markPoint)
+      if (appendOffset) {
+        for (let i = 0; i < appendOffset; i++) {
+          appendPoint = appendPoint.parentElement
+        }
+      }
+
       if (
         !isMarked("flagged_once", markPoint) &&
         appendPoint &&
@@ -240,7 +265,13 @@ const findLink = (element: Element, site: string): string => {
       case "twitter":
         link = link.substring(1)
         break
+      case "reddit":
+        link = link.substring(1)
+        break
+      default:
+        break
     }
+    console.log("found link", link)
     return link
   }
   return null

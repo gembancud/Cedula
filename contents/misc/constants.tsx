@@ -25,5 +25,10 @@ export const all_tags = {
   twitter: {
     tweet:
       "div.css-1dbjc4n > a.css-4rbku5 > div.css-1dbjc4n > div.r-1awozwy > span.css-16my406:not([cedula_marked]) > span.css-16my406:not([cedula_marked])"
+  },
+  reddit: {
+    comment:
+      "span._1a_HxF03jCyxnx706hQmJR > div._3QEK34iVL1BjyHAVleVVNQ > div._2mHuuvyV9doV3zwbZPtIPG > div > a.wM6scouPXXsFDSZmZPHRo:not([cedula_marked])",
+    op: "div._2mHuuvyV9doV3zwbZPtIPG > div > a._2tbHP6ZydRpjI44J3syuqC:not([cedula_marked])"
   }
 }
