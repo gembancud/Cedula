@@ -1,8 +1,8 @@
 {
   "name": "cedula",
   "displayName": "Cedula",
-  "version": "0.2.0",
-  "description": "A Filipino community verification plugin for Facebook",
+  "version": "0.3.0",
+  "description": "A meta-badge system for the web",
   "author": "Gil Emmanuel Bancud",
   "scripts": {
     "dev": "plasmo dev",
