@@ -9,6 +9,7 @@ import { getRandomInt } from "~contents/misc/utils"
 
 const ReactComp = ({ anchor }) => {
   const appendId = getRandomInt(1000000)
+  const { link, org, badge_link } = JSON.parse(anchor.element.dataset.link)
   const [clicked, setClicked] = useState(false)
 
   const pStyle = {
@@ -41,7 +42,7 @@ const ReactComp = ({ anchor }) => {
           role="button"
           style={buttonStyle}
           onClick={handleOnClick}>
-          <img src={iconImage} width="14" height="14" />
+          <img src={badge_link ?? iconImage} width="14" height="14" />
         </UnstyledButton>
       </div>
     )
@@ -54,13 +55,13 @@ const ReactComp = ({ anchor }) => {
         <span>
           <button
             onClick={async () => {
-              await setStored(`${anchor.element.dataset.link}_hide`, {}, true)
+              await setStored(`${link}_hide`, {}, true)
             }}>
             24 hours
           </button>
           <button
             onClick={async () => {
-              await setStored(`${anchor.element.dataset.link}_hide`, {})
+              await setStored(`${link}_hide`, {})
             }}>
             Forever
           </button>

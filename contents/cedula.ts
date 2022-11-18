@@ -1,13 +1,10 @@
 import axios from "axios"
 import { stringifyUrl } from "query-string"
-import { useEffect, useState } from "react"
-import type { Place } from "react-tooltip"
-import ReactTooltip from "react-tooltip"
 
 import { Storage } from "@plasmohq/storage"
 
-import { all_tags } from "./misc/constants"
-import { getRandomInt, isMarked, mark } from "./misc/utils"
+import { all_tags, ph_badge_link } from "./misc/constants"
+import { isMarked, mark } from "./misc/utils"
 
 export const storage = new Storage({ area: "local" })
 
@@ -19,7 +16,12 @@ interface CedulaPoint {
 
 interface ResLink {
   link: string
-  orgs: string[]
+  orgs: OrgBadge[]
+}
+
+interface OrgBadge {
+  org: string
+  badge_link: string
 }
 
 interface AddCedulasProps {
@@ -64,7 +66,10 @@ export const AddCedulas = async ({
 
   // Override by adding to all cedulaPoints
   if (markAll) {
-    applyCedulaPoints(cedulaPoints)
+    applyCedulaPoints(
+      { org: "Philippines", badge_link: ph_badge_link },
+      cedulaPoints
+    )
     return
   }
 
@@ -81,14 +86,17 @@ export const AddCedulas = async ({
       cedulasToRequest.push(cedulaPoint)
     } else {
       const { orgs, expiryDate } = JSON.parse(linkres)
+      const orgBadges = orgs as OrgBadge[]
       if (Date.parse(expiryDate) < Date.now()) {
         // Handle expired action here
         await storage.remove(link)
         cedulasToRequest.push(cedulaPoint)
-      } else if (orgs.length > 0) {
+      } else if (orgBadges.length > 0) {
         // Handle verified action here
         // TODO: applyCedulaPoint(org, cedulaPoint)
-        applyCedulaPoint(cedulaPoint)
+        for (const orgBadge of orgBadges) {
+          applyCedulaPoint(orgBadge, cedulaPoint)
+        }
       } else {
         // Handle actions where link is not verified here
         // console.log(`Link ${link} is not verified`)
@@ -117,11 +125,10 @@ export const AddCedulas = async ({
 
   for (const cedulaPoint of cedulasToRequest) {
     const { link } = cedulaPoint
-    const tmpOrgs = linkMap.get(link)
-    const orgsToMark = orgs.filter((org) => tmpOrgs.includes(org))
-    for (const org of orgsToMark) {
+    const orgsToMark = linkMap.get(link)
+    for (const orgBadge of orgsToMark) {
       // TODO: replace with applyCedulaPoint(org, cedulaPoint)
-      applyCedulaPoint(cedulaPoint)
+      applyCedulaPoint(orgBadge, cedulaPoint)
     }
   }
 }
@@ -131,10 +138,10 @@ export const AddCedulas = async ({
  * @param expiry How long to before cache is invalidated, in seconds
  **/
 const setCacheLinkMap = async (
-  linkMap: Map<string, string[]>,
+  linkMap: Map<string, OrgBadge[]>,
   expiry?: number
 ) => {
-  for (const [link, orgs] of linkMap) {
+  for (const [link, orgBadges] of linkMap) {
     const expiryDate = new Date()
 
     if (expiry) {
@@ -145,7 +152,7 @@ const setCacheLinkMap = async (
     }
 
     const cacheValue = JSON.stringify({
-      orgs,
+      orgs: orgBadges,
       expiryDate
     })
 
@@ -227,19 +234,24 @@ const getCedulaPoints = (
   return cedulaPoints
 }
 
-const applyCedulaPoints = (cedulaPoints: CedulaPoint[]) => {
+const applyCedulaPoints = (orgBadge: OrgBadge, cedulaPoints: CedulaPoint[]) => {
   cedulaPoints.forEach((cedulaPoint) => {
-    applyCedulaPoint(cedulaPoint)
+    applyCedulaPoint(orgBadge, cedulaPoint)
   })
 }
 
-const applyCedulaPoint = (cedulaPoint: CedulaPoint) => {
+const applyCedulaPoint = (orgBadge: OrgBadge, cedulaPoint: CedulaPoint) => {
   const { appendPoint, markPoint } = cedulaPoint
+  const { org, badge_link } = orgBadge
+  console.log("Applying badge to", org, badge_link)
   if (appendPoint.getElementsByTagName("img").length == 0) {
     // const imageElement = constructImageElement()
     // appendPoint.append(tmpElementToAppend)
     const tmpElementToAppend = document.createElement("span")
-    tmpElementToAppend.setAttribute("data-link", cedulaPoint.link)
+    tmpElementToAppend.setAttribute(
+      "data-link",
+      JSON.stringify({ link: cedulaPoint.link, org: org, badge_link })
+    )
     const appendPointFirsChild = appendPoint.firstChild
     insertAfter(appendPointFirsChild, tmpElementToAppend)
     mark("cedula_marked", markPoint)
@@ -287,8 +299,8 @@ const findLinkParent = (element: Element): Element => {
   }
 }
 
-const getLinkMap = (links: ResLink[]) => {
-  const linkMap = new Map<string, string[]>()
+const getLinkMap = (links: ResLink[]): Map<string, OrgBadge[]> => {
+  const linkMap = new Map<string, OrgBadge[]>()
   for (const tmpLink of links) {
     const { link, orgs } = tmpLink
     linkMap.set(link, orgs)

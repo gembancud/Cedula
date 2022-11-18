@@ -8,6 +8,7 @@ import { getRandomInt } from "~contents/misc/utils"
 
 const ReactComp = ({ anchor }) => {
   const tooltipComponent = useRef()
+  const { link, org, badge_link } = JSON.parse(anchor.element.dataset.link)
 
   const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
   const [dynamicPlacement, setDynamicPlacement] = useState<Place>("top")
@@ -41,7 +42,7 @@ const ReactComp = ({ anchor }) => {
         data-for={`cedula-tooltip-${appendId}`}
         data-event="click"
         style={spanStyle}>
-        <img src={iconImage} width="14" height="14" />
+        <img src={badge_link ?? iconImage} width="14" height="14" />
       </span>
 
       <ReactTooltip
@@ -56,13 +57,13 @@ const ReactComp = ({ anchor }) => {
         <div>
           <button
             onClick={async () => {
-              await setStored(`${anchor.element.dataset.link}_hide`, {}, true)
+              await setStored(`${link}_hide`, {}, true)
             }}>
             24 hours
           </button>
           <button
             onClick={async () => {
-              await setStored(`${anchor.element.dataset.link}_hide`, {})
+              await setStored(`${link}_hide`, {})
             }}>
             Forever
           </button>
