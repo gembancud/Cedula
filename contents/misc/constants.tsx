@@ -32,3 +32,6 @@ export const all_tags = {
     op: "div._2mHuuvyV9doV3zwbZPtIPG > div > a._2tbHP6ZydRpjI44J3syuqC:not([cedula_marked])"
   }
 }
+
+export const ph_badge_link =
+  "https://res.cloudinary.com/dml9ugyzo/image/upload/v1665682106/Philippines/ph_baqkcu.png"
