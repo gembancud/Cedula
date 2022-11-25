@@ -216,11 +216,7 @@ const getCedulaPoints = (
         }
       }
 
-      if (
-        !isMarked("flagged_once", markPoint) &&
-        appendPoint &&
-        appendPoint.getElementsByTagName("img").length == 0
-      ) {
+      if (!isMarked("flagged_once", markPoint) && appendPoint) {
         const tmpCedulaPoint: CedulaPoint = {
           link,
           appendPoint,
@@ -243,8 +239,7 @@ const applyCedulaPoints = (orgBadge: OrgBadge, cedulaPoints: CedulaPoint[]) => {
 const applyCedulaPoint = (orgBadge: OrgBadge, cedulaPoint: CedulaPoint) => {
   const { appendPoint, markPoint } = cedulaPoint
   const { org, badge_link } = orgBadge
-  console.log("Applying badge to", org, badge_link)
-  if (appendPoint.getElementsByTagName("img").length == 0) {
+  if (!isMarked("cedula_marked", markPoint)) {
     // const imageElement = constructImageElement()
     // appendPoint.append(tmpElementToAppend)
     const tmpElementToAppend = document.createElement("span")

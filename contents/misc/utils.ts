@@ -10,7 +10,7 @@ export const mark = (mark: string, element: Element) => {
   }
 }
 
-export const isMarked = (mark: string, element: HTMLHeadElement) => {
+export const isMarked = (mark: string, element: any) => {
   const marked = element.getAttribute(mark)
   return marked && marked === "true"
 }
