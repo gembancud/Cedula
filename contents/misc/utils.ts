@@ -1,5 +1,7 @@
 import iconImage from "data-base64:~assets/ph.png"
 
+import { setStored } from "~contents/cedula"
+
 // Done only once per document.
 // Used to check if the document has been already processed atleast once
 // This filters so eventListeners are not added multiple times
@@ -28,4 +30,10 @@ export const constructImageElement = () => {
 
 export const getRandomInt = (max: number) => {
   return Math.floor(Math.random() * max)
+}
+
+export const processMeInfo = (element: Element) => {
+  console.log("Processing Me Info")
+  const attr = element.getAttribute("data-link")
+  setStored("me", JSON.parse(attr))
 }
