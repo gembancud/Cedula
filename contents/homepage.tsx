@@ -5,7 +5,7 @@ import { getStored } from "~contents/cedula"
 import { isMarked, mark, processMeInfo } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
-  matches: ["https://cedula.ink/*", "http://localhost:3000"]
+  matches: ["https://cedula.ink/*", "http://localhost:3000/*"]
 }
 
 export const getInlineAnchorList = async () => {
@@ -23,13 +23,14 @@ export const getInlineAnchorList = async () => {
 }
 
 const ClickEvent = async () => {
-  console.log("click event")
   const meElement = document.querySelector("div[data-link]")
   if (meElement) {
     processMeInfo(meElement)
   }
   const stored = await getStored("me")
-  console.log("stored", stored)
+  if (stored) {
+    console.log("Data from cedula.ink stored", stored)
+  }
 }
 
 const HomePage = () => {

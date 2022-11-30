@@ -8,12 +8,14 @@ import { isMarked, mark } from "./misc/utils"
 
 export const storage = new Storage({ area: "local" })
 
+// This is the type that is crawled from the webpage
 interface CedulaPoint {
   link: string // query string to include in request
   appendPoint: Element // element to append image to
   markPoint: Element // element to mark arbitrarily eg cedula_marked
 }
 
+// Type result from API
 interface ResLink {
   link: string
   orgs: OrgBadge[]
@@ -30,8 +32,27 @@ interface AddCedulasProps {
   appendOffset?: number // offset of append point. eg 1 for parent, 2 for grandparent
 }
 
+interface Me {
+  name: string
+  email: string
+  links: {
+    link: string
+    site: string
+  }[]
+  contact_number: string
+  orgs: {
+    org: string
+    active_badge: string
+    badges: {
+      name: string
+      link: string
+    }[]
+  }[]
+}
+
 export const FacebookAddCedulas = async () => {
-  await AddCedulas({ site: "fb", orgs: ["Philippines"] })
+  const orgs = await myOrgs()
+  await AddCedulas({ site: "fb", orgs: orgs ?? ["Philippines"] })
 }
 
 export const TwitterAddCedulas = async () => {
@@ -344,4 +365,10 @@ export const getStored = async (query: string): Promise<object | null> => {
     return null
   }
   return storedObject
+}
+
+const myOrgs = async (): Promise<string[] | null> => {
+  const stored: Me | null = (await getStored("me")) as Me
+  if (!stored) return null
+  return stored.orgs.map((org) => org.org)
 }

@@ -33,7 +33,6 @@ export const getRandomInt = (max: number) => {
 }
 
 export const processMeInfo = (element: Element) => {
-  console.log("Processing Me Info")
   const attr = element.getAttribute("data-link")
   setStored("me", JSON.parse(attr))
 }
