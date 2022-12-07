@@ -56,11 +56,13 @@ export const FacebookAddCedulas = async () => {
 }
 
 export const TwitterAddCedulas = async () => {
-  await AddCedulas({ site: "twitter", orgs: ["Philippines"] })
+  const orgs = await myOrgs()
+  await AddCedulas({ site: "twitter", orgs: orgs ?? ["Philippines"] })
 }
 
 export const RedditAddCedulas = async () => {
-  await AddCedulas({ site: "reddit", orgs: ["Philippines"], appendOffset: 1 })
+  const orgs = await myOrgs()
+  await AddCedulas({ site: "reddit", orgs: orgs ?? ["Philippines"] })
 }
 
 export const AddCedulas = async ({
@@ -361,7 +363,6 @@ export const getStored = async (query: string): Promise<object | null> => {
     (storedObjectExpiry && Date.parse(storedObjectExpiry) < Date.now())
   ) {
     // console.log("No stored tags or expired, using default")
-    console.log(`${query} not found in storage`)
     return null
   }
   return storedObject
