@@ -9,19 +9,19 @@ import { isMarked, mark } from "./misc/utils"
 export const storage = new Storage({ area: "local" })
 
 // This is the type that is crawled from the webpage
-interface CedulaPoint {
+type CedulaPoint = {
   link: string // query string to include in request
   appendPoint: Element // element to append image to
   markPoint: Element // element to mark arbitrarily eg cedula_marked
 }
 
 // Type result from API
-interface ResLink {
+type ResLink = {
   link: string
   orgs: OrgBadge[]
 }
 
-interface OrgBadge {
+type OrgBadge = {
   org: string
   badge_link: string
 }
@@ -32,7 +32,7 @@ interface AddCedulasProps {
   appendOffset?: number // offset of append point. eg 1 for parent, 2 for grandparent
 }
 
-interface Me {
+type Me = {
   name: string
   email: string
   links: {
