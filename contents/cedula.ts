@@ -41,7 +41,7 @@ type Me = {
   }[]
   contact_number: string
   orgs: {
-    org: string
+    name: string
     active_badge: string
     badges: {
       name: string
@@ -371,5 +371,5 @@ export const getStored = async (query: string): Promise<object | null> => {
 const myOrgs = async (): Promise<string[] | null> => {
   const stored: Me | null = (await getStored("me")) as Me
   if (!stored) return null
-  return stored.orgs.map((org) => org.org)
+  return stored.orgs.map((org) => org.name)
 }
