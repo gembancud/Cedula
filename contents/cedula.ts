@@ -62,7 +62,11 @@ export const TwitterAddCedulas = async () => {
 
 export const RedditAddCedulas = async () => {
   const orgs = await myOrgs()
-  await AddCedulas({ site: "reddit", orgs: orgs ?? ["Philippines"] })
+  await AddCedulas({
+    site: "reddit",
+    orgs: orgs ?? ["Philippines"],
+    appendOffset: 1
+  })
 }
 
 export const AddCedulas = async ({
