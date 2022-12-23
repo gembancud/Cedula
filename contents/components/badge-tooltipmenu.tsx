@@ -1,5 +1,5 @@
 import { Tooltip } from "@mantine/core"
-import iconImage from "data-base64:~assets/ph.png"
+import iconImage from "data-base64:~assets/cedula_logo_clear_128.png"
 import { useEffect, useRef, useState } from "react"
 import reactDom from "react-dom"
 import ReactTooltip, { Place } from "react-tooltip"

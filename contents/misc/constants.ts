@@ -35,3 +35,6 @@ export const all_tags = {
 
 export const ph_badge_link =
   "https://res.cloudinary.com/dml9ugyzo/image/upload/v1665682106/Philippines/ph_baqkcu.png"
+
+export const cedula_badge_link =
+  "https://res.cloudinary.com/dml9ugyzo/image/upload/v1671802151/test_cedula/cedula_logo_clear_128_regzj1.png"

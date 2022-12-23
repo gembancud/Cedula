@@ -3,7 +3,7 @@ import { stringifyUrl } from "query-string"
 
 import { Storage } from "@plasmohq/storage"
 
-import { all_tags, ph_badge_link } from "./misc/constants"
+import { all_tags, cedula_badge_link } from "./misc/constants"
 import type { CedulaPoint, Me, OrgBadge, ResLink } from "./misc/types"
 import { isMarked, mark } from "./misc/utils"
 
@@ -58,7 +58,7 @@ export const AddCedulas = async ({
 
   // Override by adding to all cedulaPoints
   if (markAll) {
-    applyCedulaPoints({ org: "Philippines", link: ph_badge_link }, cedulaPoints)
+    applyCedulaPoints({ org: "Cedula", link: cedula_badge_link }, cedulaPoints)
     return
   }
 
