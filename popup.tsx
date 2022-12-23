@@ -16,6 +16,8 @@ import { useState } from "react"
 
 import { useStorage } from "@plasmohq/storage"
 
+import { storage } from "~contents/cedula"
+
 import { version } from "./package.json"
 
 const useStyles = createStyles((theme) => ({
@@ -57,6 +59,18 @@ function IndexPopup() {
   const clearStorage = () => {
     chrome.storage.local.clear()
     console.log("cleared storage")
+    refresh()
+  }
+
+  const switchPreview = (event: { currentTarget: { checked: any } }) => {
+    setMarkAllChecked(event.currentTarget.checked ? "true" : "false")
+    refresh()
+  }
+
+  const refresh = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.update(tabs[0].id, { url: tabs[0].url })
+    })
   }
 
   return (
@@ -77,15 +91,7 @@ function IndexPopup() {
       </Text>
       <Switch
         checked={markAllChecked === "true"}
-        onChange={(event) => {
-          setMarkAllChecked(event.currentTarget.checked ? "true" : "false")
-          chrome.tabs.query(
-            { active: true, currentWindow: true },
-            function (tabs) {
-              chrome.tabs.update(tabs[0].id, { url: tabs[0].url })
-            }
-          )
-        }}
+        onChange={switchPreview}
         color="teal"
         size="sm"
         label="Preview badges on everyone"
