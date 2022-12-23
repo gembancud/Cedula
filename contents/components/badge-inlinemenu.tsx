@@ -1,15 +1,16 @@
-import { UnstyledButton } from "@mantine/core"
+import { Tooltip, UnstyledButton } from "@mantine/core"
 import iconImage from "data-base64:~assets/ph.png"
 import { useEffect, useRef, useState } from "react"
 import reactDom from "react-dom"
 import ReactTooltip, { Place } from "react-tooltip"
 
 import { setStored } from "~contents/cedula"
+import type { InfoType, OrgBadge } from "~contents/misc/types"
 import { getRandomInt } from "~contents/misc/utils"
 
 const ReactComp = ({ anchor }) => {
   const appendId = getRandomInt(1000000)
-  const { link, org, badge_link } = JSON.parse(anchor.element.dataset.link)
+  const info: InfoType = JSON.parse(anchor.element.dataset.link)
   const [clicked, setClicked] = useState(false)
 
   const pStyle = {
@@ -42,7 +43,11 @@ const ReactComp = ({ anchor }) => {
           role="button"
           style={buttonStyle}
           onClick={handleOnClick}>
-          <img src={badge_link ?? iconImage} width="14" height="14" />
+          <img
+            src={info.orgBadges[0].link ?? iconImage}
+            width="14"
+            height="14"
+          />
         </UnstyledButton>
       </div>
     )
@@ -51,17 +56,35 @@ const ReactComp = ({ anchor }) => {
   const menu = () => {
     return (
       <>
+        {info.orgBadges.length > 1 && (
+          <div>
+            <p style={pStyle}>Other Badges</p>
+            <br />
+            {info.orgBadges.slice(1).map((orgBadge: OrgBadge) => {
+              return (
+                <span>
+                  <p style={pStyle}>{orgBadge.org}</p>
+                  <img
+                    src={orgBadge.link ?? iconImage}
+                    width="14"
+                    height="14"
+                  />
+                </span>
+              )
+            })}
+          </div>
+        )}
         <p style={pStyle}>Hide for:</p>
         <span>
           <button
             onClick={async () => {
-              await setStored(`${link}_hide`, {}, true)
+              await setStored(`${info.link}_hide`, {}, true)
             }}>
             24 hours
           </button>
           <button
             onClick={async () => {
-              await setStored(`${link}_hide`, {})
+              await setStored(`${info.link}_hide`, {})
             }}>
             Forever
           </button>

@@ -4,50 +4,15 @@ import { stringifyUrl } from "query-string"
 import { Storage } from "@plasmohq/storage"
 
 import { all_tags, ph_badge_link } from "./misc/constants"
+import type { CedulaPoint, Me, OrgBadge, ResLink } from "./misc/types"
 import { isMarked, mark } from "./misc/utils"
 
 export const storage = new Storage({ area: "local" })
-
-// This is the type that is crawled from the webpage
-type CedulaPoint = {
-  link: string // query string to include in request
-  appendPoint: Element // element to append image to
-  markPoint: Element // element to mark arbitrarily eg cedula_marked
-}
-
-// Type result from API
-type ResLink = {
-  link: string
-  orgs: OrgBadge[]
-}
-
-type OrgBadge = {
-  org: string
-  badge_link: string
-}
 
 interface AddCedulasProps {
   site: string
   orgs: string[]
   appendOffset?: number // offset of append point. eg 1 for parent, 2 for grandparent
-}
-
-type Me = {
-  name: string
-  email: string
-  links: {
-    link: string
-    site: string
-  }[]
-  contact_number: string
-  orgs: {
-    name: string
-    active_badge: string
-    badges: {
-      name: string
-      link: string
-    }[]
-  }[]
 }
 
 export const FacebookAddCedulas = async () => {
@@ -93,10 +58,7 @@ export const AddCedulas = async ({
 
   // Override by adding to all cedulaPoints
   if (markAll) {
-    applyCedulaPoints(
-      { org: "Philippines", badge_link: ph_badge_link },
-      cedulaPoints
-    )
+    applyCedulaPoints({ org: "Philippines", link: ph_badge_link }, cedulaPoints)
     return
   }
 
@@ -120,10 +82,7 @@ export const AddCedulas = async ({
         cedulasToRequest.push(cedulaPoint)
       } else if (orgBadges.length > 0) {
         // Handle verified action here
-        // TODO: applyCedulaPoint(org, cedulaPoint)
-        for (const orgBadge of orgBadges) {
-          applyCedulaPoint(orgBadge, cedulaPoint)
-        }
+        applyCedulaPoint(orgBadges, cedulaPoint)
       } else {
         // Handle actions where link is not verified here
         // console.log(`Link ${link} is not verified`)
@@ -153,10 +112,7 @@ export const AddCedulas = async ({
   for (const cedulaPoint of cedulasToRequest) {
     const { link } = cedulaPoint
     const orgsToMark = linkMap.get(link)
-    for (const orgBadge of orgsToMark) {
-      // TODO: replace with applyCedulaPoint(org, cedulaPoint)
-      applyCedulaPoint(orgBadge, cedulaPoint)
-    }
+    applyCedulaPoint(orgsToMark, cedulaPoint)
   }
 }
 /**
@@ -257,22 +213,20 @@ const getCedulaPoints = (
   return cedulaPoints
 }
 
+// Used for demo purposes
 const applyCedulaPoints = (orgBadge: OrgBadge, cedulaPoints: CedulaPoint[]) => {
   cedulaPoints.forEach((cedulaPoint) => {
-    applyCedulaPoint(orgBadge, cedulaPoint)
+    applyCedulaPoint([orgBadge], cedulaPoint)
   })
 }
 
-const applyCedulaPoint = (orgBadge: OrgBadge, cedulaPoint: CedulaPoint) => {
+const applyCedulaPoint = (orgBadges: OrgBadge[], cedulaPoint: CedulaPoint) => {
   const { appendPoint, markPoint } = cedulaPoint
-  const { org, badge_link } = orgBadge
   if (!isMarked("cedula_marked", markPoint)) {
-    // const imageElement = constructImageElement()
-    // appendPoint.append(tmpElementToAppend)
     const tmpElementToAppend = document.createElement("span")
     tmpElementToAppend.setAttribute(
       "data-link",
-      JSON.stringify({ link: cedulaPoint.link, org: org, badge_link })
+      JSON.stringify({ link: cedulaPoint.link, orgBadges })
     )
     const appendPointFirsChild = appendPoint.firstChild
     insertAfter(appendPointFirsChild, tmpElementToAppend)

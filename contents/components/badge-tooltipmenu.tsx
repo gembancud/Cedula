@@ -1,14 +1,16 @@
+import { Tooltip } from "@mantine/core"
 import iconImage from "data-base64:~assets/ph.png"
 import { useEffect, useRef, useState } from "react"
 import reactDom from "react-dom"
 import ReactTooltip, { Place } from "react-tooltip"
 
 import { setStored } from "~contents/cedula"
+import type { InfoType, OrgBadge } from "~contents/misc/types"
 import { getRandomInt } from "~contents/misc/utils"
 
 const ReactComp = ({ anchor }) => {
   const tooltipComponent = useRef()
-  const { link, org, badge_link } = JSON.parse(anchor.element.dataset.link)
+  const info: InfoType = JSON.parse(anchor.element.dataset.link)
 
   const [globalCoords, setGlobalCoords] = useState({ x: 0, y: 0 })
   const [dynamicPlacement, setDynamicPlacement] = useState<Place>("top")
@@ -42,7 +44,7 @@ const ReactComp = ({ anchor }) => {
         data-for={`cedula-tooltip-${appendId}`}
         data-event="click"
         style={spanStyle}>
-        <img src={badge_link ?? iconImage} width="14" height="14" />
+        <img src={info.orgBadges[0].link ?? iconImage} width="14" height="14" />
       </span>
 
       <ReactTooltip
@@ -53,20 +55,39 @@ const ReactComp = ({ anchor }) => {
         clickable={true}
         globalEventOff="click"
         ref={tooltipComponent}>
-        Hide for:
         <div>
-          <button
-            onClick={async () => {
-              await setStored(`${link}_hide`, {}, true)
-            }}>
-            24 hours
-          </button>
-          <button
-            onClick={async () => {
-              await setStored(`${link}_hide`, {})
-            }}>
-            Forever
-          </button>
+          {info.orgBadges.length > 1 && (
+            <div>
+              Other badges:
+              <br />
+              {info.orgBadges.slice(1).map((orgBadge: OrgBadge) => {
+                return (
+                  <Tooltip label={orgBadge!.org} closeDelay={1000}>
+                    <img
+                      src={orgBadge.link ?? iconImage}
+                      width="14"
+                      height="14"
+                    />
+                  </Tooltip>
+                )
+              })}
+            </div>
+          )}
+          Hide for:
+          <div>
+            <button
+              onClick={async () => {
+                await setStored(`${info.link}_hide`, {}, true)
+              }}>
+              24 hours
+            </button>
+            <button
+              onClick={async () => {
+                await setStored(`${info.link}_hide`, {})
+              }}>
+              Forever
+            </button>
+          </div>
         </div>
       </ReactTooltip>
     </>
