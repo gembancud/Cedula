@@ -44,7 +44,13 @@ const ReactComp = ({ anchor }) => {
         data-for={`cedula-tooltip-${appendId}`}
         data-event="click"
         style={spanStyle}>
-        <img src={info.orgBadges[0].link ?? iconImage} width="14" height="14" />
+        {info.orgBadges.length > 0 && (
+          <img
+            src={info.orgBadges![0].link ?? iconImage}
+            width="14"
+            height="14"
+          />
+        )}
       </span>
 
       <ReactTooltip
