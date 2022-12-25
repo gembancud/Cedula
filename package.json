@@ -1,7 +1,7 @@
 {
   "name": "cedula",
   "displayName": "Cedula",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A meta-badge system for the web",
   "author": "Gil Emmanuel Bancud",
   "scripts": {
