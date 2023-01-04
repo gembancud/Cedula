@@ -1,6 +1,6 @@
 import iconImage from "data-base64:~assets/ph.png"
 
-import { setStored } from "~contents/cedula"
+import { getStored, setStored } from "~contents/cedula"
 
 // Done only once per document.
 // Used to check if the document has been already processed atleast once
@@ -35,4 +35,16 @@ export const getRandomInt = (max: number) => {
 export const processMeInfo = (element: Element) => {
   const attr = element.getAttribute("data-link")
   setStored("me", JSON.parse(attr))
+}
+
+/// Custom debug function
+export const cedebug = async (msg: any, title?: string) => {
+  const stored: object | null = await getStored("debug")
+  if (stored) {
+    if (title) {
+      console.log("Cedula Ext\n", title, msg)
+    } else {
+      console.log("Cedula Ext\n", msg)
+    }
+  }
 }

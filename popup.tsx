@@ -5,18 +5,16 @@ import {
   Stack,
   Switch,
   Text,
-  Title,
   UnstyledButton,
   createStyles,
   useMantineTheme
 } from "@mantine/core"
+import { useClipboard } from "@mantine/hooks"
 import { IconCheck, IconExternalLink, IconX } from "@tabler/icons"
 import katipunero from "data-base64:~assets/katipunero.png"
 import { useState } from "react"
 
 import { useStorage } from "@plasmohq/storage"
-
-import { storage } from "~contents/cedula"
 
 import { version } from "./package.json"
 
@@ -51,11 +49,24 @@ const useStyles = createStyles((theme) => ({
 function IndexPopup() {
   const { classes } = useStyles()
   const theme = useMantineTheme()
+
+  const clipboard = useClipboard({ timeout: 500 })
+
   const [opened, setOpened] = useState(false)
   const [markAllChecked, setMarkAllChecked] = useStorage(
     { key: "markAll", area: "local" },
     "false"
   )
+  const [showDebugChecked, setShowDebugChecked] = useStorage(
+    { key: "debug", area: "local" },
+    "false"
+  )
+
+  const [showMePreview, setShowMePreview] = useStorage<{}>(
+    { key: "me", area: "local" },
+    {}
+  )
+
   const clearStorage = () => {
     chrome.storage.local.clear()
     console.log("cleared storage")
@@ -64,6 +75,11 @@ function IndexPopup() {
 
   const switchPreview = (event: { currentTarget: { checked: any } }) => {
     setMarkAllChecked(event.currentTarget.checked ? "true" : "false")
+    refresh()
+  }
+
+  const switchDebug = (event: { currentTarget: { checked: any } }) => {
+    setShowDebugChecked(event.currentTarget.checked ? "true" : "false")
     refresh()
   }
 
@@ -143,18 +159,28 @@ function IndexPopup() {
         <Text size="xs">Developer Options</Text>
       </UnstyledButton>
 
-      <Collapse
-        in={opened}
-        sx={{
-          alignSelf: "center"
-        }}>
-        <Button
-          onClick={() => clearStorage()}
-          sx={{
-            alignSelf: "center"
-          }}>
-          Clear storage
-        </Button>
+      <Collapse in={opened}>
+        <Stack align="center">
+          <Button
+            onClick={() => clearStorage()}
+            sx={{
+              alignSelf: "center"
+            }}>
+            Clear storage
+          </Button>
+          <Switch
+            checked={showDebugChecked === "true"}
+            onChange={switchDebug}
+            label="Show debug"
+            onLabel="ON"
+            offLabel="OFF"
+          />
+          <Button
+            color={clipboard.copied ? "teal" : "blue"}
+            onClick={() => clipboard.copy(showMePreview)}>
+            {clipboard.copied ? "Copied" : "Copy Me"}
+          </Button>
+        </Stack>
       </Collapse>
     </Stack>
   )

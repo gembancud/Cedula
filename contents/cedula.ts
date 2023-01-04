@@ -5,7 +5,7 @@ import { Storage } from "@plasmohq/storage"
 
 import { all_tags, cedula_badge_link } from "./misc/constants"
 import type { CedulaPoint, Me, OrgBadge, ResLink } from "./misc/types"
-import { isMarked, mark } from "./misc/utils"
+import { cedebug, isMarked, mark } from "./misc/utils"
 
 export const storage = new Storage({ area: "local" })
 
@@ -17,6 +17,7 @@ interface AddCedulasProps {
 
 export const FacebookAddCedulas = async () => {
   const orgs = await myOrgs()
+  cedebug(orgs, "orgs")
   await AddCedulas({ site: "fb", orgs: orgs ?? ["Philippines"] })
 }
 
@@ -39,6 +40,7 @@ export const AddCedulas = async ({
   orgs,
   appendOffset
 }: AddCedulasProps) => {
+  cedebug(orgs, "add cedulas")
   const markAll: boolean = await storage
     .get("markAll")
     .then((res) => res && res === "true")
@@ -82,6 +84,7 @@ export const AddCedulas = async ({
         cedulasToRequest.push(cedulaPoint)
       } else if (orgBadges.length > 0) {
         // Handle verified action here
+        cedebug(orgBadges, "orgBadges from cache")
         applyCedulaPoint(orgBadges, cedulaPoint)
       } else {
         // Handle actions where link is not verified here

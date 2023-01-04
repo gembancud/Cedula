@@ -2,7 +2,7 @@ import type { PlasmoContentScript } from "plasmo"
 
 import { getStored } from "~contents/cedula"
 
-import { isMarked, mark, processMeInfo } from "./misc/utils"
+import { cedebug, isMarked, mark, processMeInfo } from "./misc/utils"
 
 export const config: PlasmoContentScript = {
   matches: ["https://cedula.ink/*", "http://localhost:3000/*"]
@@ -29,7 +29,7 @@ const ClickEvent = async () => {
   }
   const stored = await getStored("me")
   if (stored) {
-    console.log("Data from cedula.ink stored", stored)
+    cedebug(stored, "Data from cedula.ink storedData from cedula.ink stored")
   }
 }
 
