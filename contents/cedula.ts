@@ -17,7 +17,6 @@ interface AddCedulasProps {
 
 export const FacebookAddCedulas = async () => {
   const orgs = await myOrgs()
-  cedebug(orgs, "orgs")
   await AddCedulas({ site: "fb", orgs: orgs ?? ["Philippines"] })
 }
 
@@ -40,7 +39,6 @@ export const AddCedulas = async ({
   orgs,
   appendOffset
 }: AddCedulasProps) => {
-  cedebug(orgs, "add cedulas")
   const markAll: boolean = await storage
     .get("markAll")
     .then((res) => res && res === "true")
@@ -72,6 +70,7 @@ export const AddCedulas = async ({
     const isHidden = await getStored(`${link}_hide`)
     if (!link || isHidden) continue
     const linkres = await storage.get(link)
+    cedebug(linkres, `linkres for ${link}`)
 
     if (!linkres) {
       cedulasToRequest.push(cedulaPoint)
@@ -84,7 +83,7 @@ export const AddCedulas = async ({
         cedulasToRequest.push(cedulaPoint)
       } else if (orgBadges.length > 0) {
         // Handle verified action here
-        cedebug(orgBadges, "orgBadges from cache")
+        cedebug(orgBadges, `orgBadges for ${link} from cache`)
         applyCedulaPoint(orgBadges, cedulaPoint)
       } else {
         // Handle actions where link is not verified here
@@ -110,6 +109,7 @@ export const AddCedulas = async ({
   const cedulas = await axios.get(url)
   const { links } = cedulas.data
   const linkMap = getLinkMap(links)
+  cedebug(linkMap, "link map taken from backend")
   await setCacheLinkMap(linkMap, expiry)
 
   for (const cedulaPoint of cedulasToRequest) {
