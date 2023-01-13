@@ -152,7 +152,7 @@ const setCacheLinkMap = async (
  *
  * @returns Object of cedula tags
  * */
-const getCedulaTags = async (site: string) => {
+const getCedulaTags = async (site: string): Promise<object | null> => {
   let storedTags: object | null = await storage
     .get(`${site}_cedula_tags`)
     .then((res) => (res ? JSON.parse(res) : null))
@@ -166,22 +166,36 @@ const getCedulaTags = async (site: string) => {
     const res = await axios.get(
       `${process.env.PLASMO_PUBLIC_CEDULA_API_URL}/tag/${site}`
     )
-    const { tags } = res.data
-    for (const tag of tags) {
-      storedTags[tag.label] = tag.tag
-    }
-    await storage.set(`${site}_cedula_tags`, JSON.stringify(storedTags))
+    if (res.status !== 200) {
+      switch (site) {
+        case "fb":
+          return all_tags.fb
+        case "twitter":
+          return all_tags.twitter
+        case "reddit":
+          return all_tags.reddit
+        default:
+          cedebug(`No tags found for site ${site}`)
+          return all_tags.fb
+      }
+    } else {
+      const { tags } = res.data
+      for (const tag of tags) {
+        storedTags[tag.label] = tag.tag
+      }
+      await storage.set(`${site}_cedula_tags`, JSON.stringify(storedTags))
 
-    const expiryDate = new Date()
-    expiryDate.setDate(expiryDate.getDate() + 1)
-    // For quick testing set to 5 seconds
-    // expiryDate.setSeconds(expiryDate.getSeconds() + 5)
-    await storage.set(
-      `${site}_cedula_tags_expiry`,
-      JSON.stringify({ expiryDate })
-    )
+      const expiryDate = new Date()
+      expiryDate.setDate(expiryDate.getDate() + 1)
+      // For quick testing set to 5 seconds
+      // expiryDate.setSeconds(expiryDate.getSeconds() + 5)
+      await storage.set(
+        `${site}_cedula_tags_expiry`,
+        JSON.stringify({ expiryDate })
+      )
+    }
+    return storedTags
   }
-  return storedTags
 }
 
 const getCedulaPoints = (
