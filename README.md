@@ -61,13 +61,12 @@
       </ul>
     </li>
     <li>
-      <a href="#getting-started-(for-developers)">Getting Started</a>
+      <a href="#getting-started-for-developers">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites-(for-developers)">Prerequisites</a></li>
-        <li><a href="#local-setup-(for-developers)">Installation</a></li>
+        <li><a href="#prerequisites-for-developers">Prerequisites</a></li>
+        <li><a href="#local-setup-for-developers">Installation</a></li>
       </ul>
     </li>
-    <li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
